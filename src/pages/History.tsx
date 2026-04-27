@@ -1,6 +1,4 @@
 import React, { useState, useEffect } from 'react'
-import { Link } from 'react-router-dom'
-import dayjs from 'dayjs'
 import './History.css'
 
 interface Report {
@@ -11,40 +9,33 @@ interface Report {
   createdAt: string
 }
 
-interface PageData {
-  records: Report[]
-  total: number
-  current: number
-  size: number
-}
-
 export default function History() {
-  const [pageData, setPageData] = useState<PageData | null>(null)
+  const [reports, setReports] = useState<Report[]>([])
   const [loading, setLoading] = useState(true)
-  const [page, setPage] = useState(1)
-  const [edition, setEdition] = useState<string>('')
-
-  const fetchReports = async () => {
-    setLoading(true)
-    try {
-      const url = `/api/reports?page=${page}&size=20${edition ? `&edition=${edition}` : ''}`
-      const res = await fetch(url).then(r => r.json())
-      if (res.code === 200) {
-        setPageData(res.data)
-      }
-    } catch (e) {
-      console.error('获取简报列表失败', e)
-    } finally {
-      setLoading(false)
-    }
-  }
 
   useEffect(() => {
-    fetchReports()
-  }, [page, edition])
+    fetch('/api/reports?page=1&size=50')
+      .then(res => res.json())
+      .then(data => {
+        if (data.code === 200 && data.data?.records) {
+          setReports(data.data.records)
+        }
+      })
+      .catch(() => {/* ignore */})
+      .finally(() => setLoading(false))
+  }, [])
 
-  const editionLabel = (e: string) => e === 'morning' ? '早间版' : '晚间版'
-  const editionTagClass = (e: string) => e === 'morning' ? 'tag-morning' : 'tag-evening'
+  const formatDate = (dateStr: string) => {
+    const d = new Date(dateStr)
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`
+  }
+
+  const formatTime = (dateStr: string) => {
+    const d = new Date(dateStr)
+    return `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`
+  }
+
+  const isMorning = (edition: string) => edition === 'morning'
 
   if (loading) {
     return (
@@ -57,10 +48,6 @@ export default function History() {
     )
   }
 
-  const records = pageData?.records || []
-  const total = pageData?.total || 0
-  const totalPages = Math.ceil(total / 20)
-
   return (
     <div className="history-page">
       <div className="history-header">
@@ -70,63 +57,40 @@ export default function History() {
         </div>
         <div className="header-stats">
           <div className="stat-badge">
-            <span className="stat-number">{total}</span>
+            <span className="stat-number">{reports.length}</span>
             <span className="stat-label">总计</span>
           </div>
         </div>
       </div>
 
-      {/* 筛选栏 */}
-      <div className="filter-bar">
-        <button
-          className={edition === '' ? 'filter-btn active' : 'filter-btn'}
-          onClick={() => { setEdition(''); setPage(1) }}
-        >全部</button>
-        <button
-          className={edition === 'morning' ? 'filter-btn active' : 'filter-btn'}
-          onClick={() => { setEdition('morning'); setPage(1) }}
-        >🌅 早间版</button>
-        <button
-          className={edition === 'evening' ? 'filter-btn active' : 'filter-btn'}
-          onClick={() => { setEdition('evening'); setPage(1) }}
-        >🌙 晚间版</button>
-      </div>
-
-      {records.length === 0 ? (
+      {reports.length === 0 ? (
         <div className="empty-state">
-          <p>暂无简报数据</p>
+          <p>暂无历史简报</p>
         </div>
       ) : (
         <div className="reports-list">
-          {records.map(report => (
-            <Link key={report.id} to={`/report/${report.id}`} className="report-card">
+          {reports.map(report => (
+            <div key={report.id} className="report-card" onClick={() => window.location.href = `/report/${report.id}`}>
               <div className="report-icon">
-                {report.edition === 'morning' ? '🌅' : '🌙'}
+                {isMorning(report.edition) ? '🌅' : '🌙'}
               </div>
               <div className="report-content">
                 <div className="report-meta">
-                  <span className={`edition-tag ${editionTagClass(report.edition)}`}>
-                    {editionLabel(report.edition)}
+                  <span className="report-category" style={{ borderColor: '#00d4aa' }}>
+                    {isMorning(report.edition) ? '早间版' : '晚间版'}
                   </span>
-                  <span className="report-date">
-                    {dayjs(report.createdAt).format('MM-DD HH:mm')}
-                  </span>
+                  <span className="report-version">AI 简报</span>
                 </div>
                 <h3 className="report-title">{report.title}</h3>
                 <p className="report-summary">{report.summary}</p>
+                <div className="report-footer">
+                  <span className="report-date">{formatDate(report.createdAt)}</span>
+                  <span className="report-time">{formatTime(report.createdAt)}</span>
+                </div>
               </div>
               <div className="report-arrow">→</div>
-            </Link>
+            </div>
           ))}
-        </div>
-      )}
-
-      {/* 分页 */}
-      {totalPages > 1 && (
-        <div className="pagination">
-          <button disabled={page === 1} onClick={() => setPage(p => p - 1)}>上一页</button>
-          <span>第 {page} / {totalPages} 页</span>
-          <button disabled={page >= totalPages} onClick={() => setPage(p => p + 1)}>下一页</button>
         </div>
       )}
     </div>
