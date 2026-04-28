@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import './History.css'
 
 interface Report {
@@ -12,6 +13,7 @@ interface Report {
 }
 
 export default function History() {
+  const navigate = useNavigate()
   const [reports, setReports] = useState<Report[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -92,7 +94,7 @@ export default function History() {
 
       <div className="reports-list">
         {reports.map(report => (
-          <div key={report.id} className="report-card" onClick={() => window.location.href = `/report/${report.id}`}>
+          <div key={report.id} className="report-card" onClick={() => navigate(`/report/${report.id}`)}>
             <div className="report-icon">
               {getTimeIcon(report.time)}
             </div>
