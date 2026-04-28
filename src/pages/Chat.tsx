@@ -57,11 +57,11 @@ export default function Chat() {
       })
       const result = await res.json()
       
-      if (result.code === 200) {
+      if (result.code === 200 && result.data) {
         const assistantMessage: Message = {
           role: 'assistant',
-          content: result.data.answer,
-          sources: result.data.sources
+          content: result.data.answer || '抱歉，未能获取有效回答',
+          sources: result.data.sources || []
         }
         setMessages(prev => [...prev, assistantMessage])
       } else {

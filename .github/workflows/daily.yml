@@ -1,9 +1,9 @@
 name: AI 每日高价值简报
 
 on:
- # schedule:
-    #- cron: '0 23 * * *'   # UTC 23点 = 北京时间次日7点（提前1小时）
-    #- cron: '0 11 * * *'   # UTC 11点 = 北京时间19点（提前1小时）
+  schedule:
+    - cron: '0 23 * * *'   # UTC 23点 = 北京时间次日 07:00（早间版）
+    - cron: '0 11 * * *'   # UTC 11点 = 北京时间 19:00（晚间版）
   workflow_dispatch:
     inputs:
       edition:
