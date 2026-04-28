@@ -1,0 +1,39 @@
+name: AI 每日高价值简报
+
+on:
+ # schedule:
+    #- cron: '0 0 * * *'   # UTC 0点 = 北京时间次日 08:00（早间版）
+    #- cron: '0 12 * * *'  # UTC 12点 = 北京时间 20:00（晚间版）
+  workflow_dispatch:
+    inputs:
+      edition:
+        description: '选择版本'
+        required: true
+        default: 'morning'
+        type: choice
+        options:
+          - morning
+          - evening
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v5
+      - name: 设置 Python 环境
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+      - name: 安装依赖
+        run: pip install -r requirements.txt -q
+      - name: 生成 AI 简报 & 推送
+        env:
+          TZ: 'Asia/Shanghai'
+          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+          WECHAT_WEBHOOK: ${{ secrets.WECHAT_WEBHOOK }}
+          BACKEND_API_URL: ${{ secrets.BACKEND_API_URL }}
+          EDITION: ${{ github.event.inputs.edition || 'auto' }}
+          GITHUB_RUN_ID: ${{ github.run_id }}
+        run: python scripts/daily_report.py

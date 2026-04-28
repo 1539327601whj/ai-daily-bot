@@ -153,33 +153,12 @@ public class ChatServiceImpl implements ChatService {
         StringBuilder sb = new StringBuilder();
         sb.append("你是一个AI资讯助手。以下是相关的历史简报内容：\n\n");
         
-        int totalLength = 0;
-        int maxTotalLength = 3000; // 总上下文限制约 3000 字符
-        
         for (int i = 0; i < reports.size(); i++) {
             Report r = reports.get(i);
-            // 优先使用摘要，限制长度避免超过 token 限制
-            String content = r.getSummary();
-            if (content == null || content.isEmpty()) {
-                content = r.getContent();
-            }
-            // 限制单条简报内容长度（约 300 字符）
-            if (content != null && content.length() > 300) {
-                content = content.substring(0, 300) + "...";
-            }
-            
-            String entry = String.format("【简报%d】%s\n%s\n\n", 
-                i + 1, r.getTitle(),
-                content);
-            
-            // 检查总长度
-            if (totalLength + entry.length() > maxTotalLength) {
-                sb.append("...（更多简报已省略）\n");
-                break;
-            }
-            
-            sb.append(entry);
-            totalLength += entry.length();
+            sb.append(String.format("【简报%d】%s（%s）\n%s\n\n", 
+                i + 1, r.getTitle(), 
+                r.getCreatedAt() != null ? r.getCreatedAt().toString() : "",
+                r.getContent()));
         }
         
         sb.append("请根据以上简报内容回答用户的问题。如果简报中没有相关信息，请说明暂时无法从已知内容中获取答案。");
