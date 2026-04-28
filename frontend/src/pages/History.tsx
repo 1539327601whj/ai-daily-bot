@@ -22,15 +22,23 @@ export default function History() {
       .then(data => {
         if (data.code === 200 && data.data) {
           // 转换后端数据为前端格式
-          const formattedReports: Report[] = data.data.records?.map((report: any) => ({
-            id: report.id,
-            title: report.title || 'AI 领域每日简报',
-            date: report.reportDate || report.date,
-            time: report.edition === 'morning' ? '08:00' : '20:00',
-            category: 'AI',
-            version: `v1.0.${report.id}`,
-            summary: report.summary || '点击查看详细简报内容'
-          })) || []
+          const formattedReports: Report[] = data.data.records?.map((report: any) => {
+            // 将 UTC 时间转换为北京时间 (UTC+8)
+            const createdAt = report.createdAt ? new Date(report.createdAt) : new Date()
+            const beijingTime = new Date(createdAt.getTime() + 8 * 60 * 60 * 1000)
+            const dateStr = beijingTime.toISOString().split('T')[0]
+            const timeStr = beijingTime.toTimeString().slice(0, 5)
+            
+            return {
+              id: report.id,
+              title: report.title || 'AI 领域每日简报',
+              date: dateStr,
+              time: timeStr,
+              category: 'AI',
+              version: `v1.0.${report.id}`,
+              summary: report.summary || '点击查看详细简报内容'
+            }
+          }) || []
           setReports(formattedReports)
         }
         setLoading(false)
