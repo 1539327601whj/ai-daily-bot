@@ -7,6 +7,8 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 
 /**
  * Report 服务实现
@@ -22,7 +24,8 @@ public class ReportServiceImpl extends ServiceImpl<ReportMapper, Report> impleme
         report.setContent(content);
         report.setSummary(summary);
         report.setRunId(runId);
-        report.setCreatedAt(LocalDateTime.now());
+        // 使用北京时间存储
+        report.setCreatedAt(ZonedDateTime.now(ZoneId.of("Asia/Shanghai")).toLocalDateTime());
         this.save(report);
     }
 

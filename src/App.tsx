@@ -1,4 +1,4 @@
-import React from 'react'
+import type React from 'react'
 import { BrowserRouter, Routes, Route, Link, useLocation } from 'react-router-dom'
 import Dashboard from './pages/Dashboard'
 import History from './pages/History'

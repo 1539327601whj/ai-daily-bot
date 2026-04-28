@@ -1,5 +1,4 @@
-import React, { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useEffect, useState } from 'react'
 import './Subscription.css'
 
 interface SubscriptionData {
@@ -14,7 +13,6 @@ const FIELD_OPTIONS = [
 ]
 
 export default function Subscription() {
-  const navigate = useNavigate()
   const [data, setData] = useState<SubscriptionData>({
     receiveTime: 'both',
     preferenceFields: [],

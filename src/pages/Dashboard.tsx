@@ -164,7 +164,7 @@ export default function Dashboard() {
             <div className="sub-icon">🌅</div>
             <div className="sub-info">
               <span className="sub-label">早间版</span>
-              <span className="sub-time">每日 07:00</span>
+              <span className="sub-time">每日 08:00</span>
             </div>
             <span className="sub-status active">已启用</span>
           </div>
@@ -172,7 +172,7 @@ export default function Dashboard() {
             <div className="sub-icon">🌙</div>
             <div className="sub-info">
               <span className="sub-label">晚间版</span>
-              <span className="sub-time">每日 19:00</span>
+              <span className="sub-time">每日 20:00</span>
             </div>
             <span className="sub-status active">已启用</span>
           </div>
