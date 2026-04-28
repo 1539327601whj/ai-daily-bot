@@ -5,7 +5,7 @@ services:
   - type: web
     name: ai-daily-backend
     runtime: docker
-    dockerfilePath: ./Dockerfile
+    dockerfilePath: ./backend/Dockerfile
     region: oregon
     plan: free
 
