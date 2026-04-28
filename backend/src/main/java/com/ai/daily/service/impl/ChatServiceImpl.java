@@ -155,10 +155,19 @@ public class ChatServiceImpl implements ChatService {
         
         for (int i = 0; i < reports.size(); i++) {
             Report r = reports.get(i);
+            // 优先使用摘要，限制长度避免超过 token 限制
+            String content = r.getSummary();
+            if (content == null || content.isEmpty()) {
+                content = r.getContent();
+            }
+            // 限制单条简报内容长度（约 500 字符）
+            if (content != null && content.length() > 500) {
+                content = content.substring(0, 500) + "...";
+            }
             sb.append(String.format("【简报%d】%s（%s）\n%s\n\n", 
                 i + 1, r.getTitle(), 
                 r.getCreatedAt() != null ? r.getCreatedAt().toString() : "",
-                r.getContent()));
+                content));
         }
         
         sb.append("请根据以上简报内容回答用户的问题。如果简报中没有相关信息，请说明暂时无法从已知内容中获取答案。");
