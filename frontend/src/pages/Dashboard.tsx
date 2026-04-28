@@ -130,7 +130,9 @@ export default function Dashboard() {
                 <div key={report.id} className="report-item">
                   <div className="item-left">
                     <span className={editionTagClass(report.edition)}>{editionLabel(report.edition)}</span>
-                    <span className="item-time">{dayjs(report.createdAt).format('MM-DD HH:mm')}</span>
+                    <span className="item-time">{
+                      dayjs(report.createdAt).format('MM-DD HH:mm')
+                    }</span>
                   </div>
                   <div className="item-right">
                     <Link to={`/report/${report.id}`} className="item-title">{report.title}</Link>

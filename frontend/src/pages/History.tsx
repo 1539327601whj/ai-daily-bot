@@ -1,15 +1,14 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import dayjs from 'dayjs'
 import './History.css'
 
 interface Report {
   id: number
+  edition: string
   title: string
-  date: string
-  time: string
-  category: string
-  version: string
   summary: string
+  createdAt: string
 }
 
 export default function History() {
@@ -18,53 +17,18 @@ export default function History() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    // 调用后端API获取简报列表
     fetch('/api/reports?page=1&size=50')
       .then(res => res.json())
       .then(data => {
-        if (data.code === 200 && data.data) {
-          // 转换后端数据为前端格式
-          const formattedReports: Report[] = data.data.records?.map((report: any) => {
-            // 将 UTC 时间转换为北京时间 (UTC+8)
-            const createdAt = report.createdAt ? new Date(report.createdAt) : new Date()
-            const beijingTime = new Date(createdAt.getTime() + 8 * 60 * 60 * 1000)
-            const dateStr = beijingTime.toISOString().split('T')[0]
-            const timeStr = beijingTime.toTimeString().slice(0, 5)
-            
-            return {
-              id: report.id,
-              title: report.title || 'AI 领域每日简报',
-              date: dateStr,
-              time: timeStr,
-              category: 'AI',
-              version: `v1.0.${report.id}`,
-              summary: report.summary || '点击查看详细简报内容'
-            }
-          }) || []
-          setReports(formattedReports)
+        if (data.code === 200 && data.data?.records) {
+          setReports(data.data.records)
         }
-        setLoading(false)
       })
-      .catch(err => {
-        console.error('获取简报列表失败:', err)
-        setLoading(false)
-      })
+      .catch(() => {/* ignore */})
+      .finally(() => setLoading(false))
   }, [])
 
-  const getCategoryColor = (category: string) => {
-    const colors: Record<string, string> = {
-      'AI': '#00d4aa',
-      'Tech': '#7c4dff',
-      'Science': '#ff6b6b',
-      'Business': '#ffd93d'
-    }
-    return colors[category] || '#00d4aa'
-  }
-
-  const getTimeIcon = (time: string) => {
-    const hour = parseInt(time.split(':')[0])
-    return hour < 12 ? '🌅' : '🌙'
-  }
+  const isMorning = (edition: string) => edition === 'morning'
 
   if (loading) {
     return (
@@ -92,32 +56,36 @@ export default function History() {
         </div>
       </div>
 
-      <div className="reports-list">
-        {reports.map(report => (
-          <div key={report.id} className="report-card" onClick={() => navigate(`/report/${report.id}`)}>
-            <div className="report-icon">
-              {getTimeIcon(report.time)}
-            </div>
-            <div className="report-content">
-              <div className="report-meta">
-                <span className="report-category" style={{ borderColor: getCategoryColor(report.category) }}>
-                  {report.category}
-                </span>
-                <span className="report-version">{report.version}</span>
+      {reports.length === 0 ? (
+        <div className="empty-state">
+          <p>暂无历史简报</p>
+        </div>
+      ) : (
+        <div className="reports-list">
+          {reports.map(report => (
+            <div key={report.id} className="report-card" onClick={() => navigate(`/report/${report.id}`)}>
+              <div className="report-icon">
+                {isMorning(report.edition) ? '🌅' : '🌙'}
               </div>
-              <h3 className="report-title">{report.title}</h3>
-              <p className="report-summary">{report.summary}</p>
-              <div className="report-footer">
-                <span className="report-date">{report.date}</span>
-                <span className="report-time">{report.time}</span>
+              <div className="report-content">
+                <div className="report-meta">
+                  <span className="report-category" style={{ borderColor: '#00d4aa' }}>
+                    {isMorning(report.edition) ? '早间版' : '晚间版'}
+                  </span>
+                  <span className="report-version">AI 简报</span>
+                </div>
+                <h3 className="report-title">{report.title}</h3>
+                <p className="report-summary">{report.summary}</p>
+                <div className="report-footer">
+                  <span className="report-date">{dayjs(report.createdAt).format('YYYY-MM-DD')}</span>
+                  <span className="report-time">{dayjs(report.createdAt).format('HH:mm')}</span>
+                </div>
               </div>
+              <div className="report-arrow">→</div>
             </div>
-            <div className="report-arrow">
-              →
-            </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
     </div>
   )
 }
