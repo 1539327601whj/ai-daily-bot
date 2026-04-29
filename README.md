@@ -11,7 +11,7 @@
 
 **基于 DeepSeek 大模型的智能资讯聚合与简报生成平台**
 
-<img src="https://raw.githubusercontent.com/1539327601whj/ai-daily-bot/main/public/web.jpg" alt="前端界面预览" width="800"/>
+<img src="https://raw.githubusercontent.com/1539327601whj/Bot-Brief/main/public/web.jpg" alt="前端界面预览" width="800"/>
 
 在线演示：https://qaq.goodhappy.top/
 
